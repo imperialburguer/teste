@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Imperial Burguer</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="icon" href="images/logo.ico" type="image/x-icon">
+</head>
+<body>
+    <!-- Capa -->
+    <div class="header fixed-menu" id="header">
+        <img src="images/logoimperial.png" alt="Imperial Burguer">
+        <p class="header-slogan">"Bem-vindo ao império do sabor!"</p>
+        <button class="catalog-button" onclick="showInicio()">Visualizar Cardápio</button>
+        <div class="informacoes" id="informacoes">
+            <p><i class="fas fa-clock clock-icon"></i> Horário de Funcionamento: 18:30 - 22:00</p>
+            <p><i class="fas fa-motorcycle motorcycle-icon"></i> Serviço de Delivery Disponível até as 21:30. Faça seu Pedido!</p>
+        </div>
+    </div>
+
+    <!-- Página Inicial (Menu, Carrossel e Destaques) -->
+    <div class="inicio" id="inicio" style="display: none;">
+        <div class="header-content">
+            <div class="logo">
+                <img src="images/logoimperial.png" alt="Logo Imperial Burguer">
+            </div>
+            <!-- Ícone de Menu Mobile -->
+            <div class="menu-icon" onclick="toggleMenu()">☰</div>
+            <!-- Menu de Categorias -->
+            <div class="categorias" id="categorias">
+                <button class="categoria-button" onclick="showInicio()">Início</button>
+                <div class="dropdown">
+                    <button class="categoria-button">Hambúrgueres</button>
+                    <div class="dropdown-content">
+                        <button class="subcategoria-button" onclick="filterProducts('Hambúrgueres', 'X')">X</button>
+                        <button class="subcategoria-button" onclick="filterProducts('Hambúrgueres', 'Duplos')">Duplos</button>
+                        <button class="subcategoria-button" onclick="filterProducts('Hambúrgueres', 'Especial')">Especial</button>
+                    </div>
+                </div>
+                <button class="categoria-button" onclick="filterProducts('Bebidas')">Bebidas</button>
+                <button class="categoria-button" onclick="filterProducts('Porções')">Porções</button>
+                <button class="categoria-button" onclick="filterProducts('molhos')">Molhos</button>
+            </div>
+        </div>
+        
+        <!-- Carrossel -->
+        <div class="carrossel" id="carrossel">
+            <div class="carrossel-item">
+                <img src="images/promobatata2.png" alt="Promoção 1">
+            </div>
+            <div class="carrossel-item">
+                <img src="images/promobatata.png" alt="Promoção 2">
+            </div>
+            <button class="carrossel-button prev" onclick="prevCarrosselItem()">&#10094;</button>
+            <button class="carrossel-button next" onclick="nextCarrosselItem()">&#10095;</button>
+        </div>
+
+        <!-- Produtos em Destaque -->
+        <div class="destaque" id="destaque">
+            <h1>Combos da Imperial</h1>
+            <div class="grid" id="produtos-destaque"></div>
+        </div>
+    </div>
+
+    <!-- Catálogo de Produtos -->
+    <div class="catalogo" id="catalogo" style="display: none;">
+        <h1>Imperial Burguer</h1>
+        <div class="grid" id="produtos"></div>
+    </div>
+
+    <!-- Ícone do Carrinho -->
+    <div class="cart-icon" id="cartIcon" onclick="toggleCart()" style="display: none;">
+        🛒<span id="cartCount">0</span>
+    </div>
+
+    <!-- Detalhes do Carrinho -->
+    <div class="cart-details content" id="cartDetails">
+        <h3>Carrinho</h3>
+        <div id="cartItems"></div>
+        <div id="cartTotal">Total: R$ 0.00 (incluindo taxa de entrega: R$ 0.00)</div>
+
+        <!-- Observações do Pedido -->
+        <textarea id="orderNotes" placeholder="Adicione observações ao pedido aqui..."></textarea>
+
+        <!-- Campo de Cupom -->
+        <div class="cupom-option">
+            <button id="toggleCupomButton" class="cupom-toggle-button" onclick="toggleCupomInput()">
+                Possui um cupom de desconto? <span class="arrow">&#9660;</span>
+            </button>
+            <div id="cupomInputContainer" style="display: none;">
+                <input type="text" id="cupomInput" placeholder="Digite seu cupom">
+                <button class="confirm-button" onclick="aplicarCupom()">Aplicar</button>
+            </div>
+            <div id="cupomAplicadoContainer" style="display: none;">
+                <span id="cupomAplicadoText"></span>
+                <button class="remove-cupom-button" onclick="removerCupom()">Remover</button>
+            </div>
+        </div>
+
+        <!-- Opção de Entrega -->
+        <div class="delivery-option">
+            <p>Escolha a opção:</p>
+            <input type="radio" id="delivery" name="deliveryOption" value="Delivery" onchange="handleDeliveryOptionChange(this.value)">
+            <label for="delivery">Delivery</label>
+            <input type="radio" id="pickup" name="deliveryOption" value="Retirada" onchange="handleDeliveryOptionChange(this.value)">
+            <label for="pickup">Retirada</label>
+        </div>
+
+        <!-- Opção de Localização -->
+        <div class="location-option" id="locationOption" style="display: none;">
+            <p>Selecione sua localização:</p>
+            <select id="locationSelect" onchange="updateDeliveryFee()">
+                <option value="" disabled selected>Selecione sua localização</option>
+                <option value="Barro Vermelho" data-fee="3.00">Barro Vermelho - R$ 3.00</option>
+                <option value="Alquebre" data-fee="5.00">Alquebre - R$ 5.00</option>
+                <option value="Tamundé/Poção" data-fee="5.00">Tamundé/Poção - R$ 5.00</option>
+                <option value="Pé do Morro" data-fee="4.00">Pé do Morro - R$ 4.00</option>
+                <option value="Impuzinho" data-fee="3.00">Impuzinho - R$ 3.00</option>
+                <option value="Chapada dos Ribeiros" data-fee="3.00">Chapada dos Ribeiros - R$ 3.00</option>
+                <option value="Chapada do Papoco" data-fee="4.00">Chapada do Papoco - R$ 4.00</option>
+                <option value="Malhada" data-fee="Grátis">Malhada - Grátis</option>
+                <option value="Combinar entrega" data-fee="Combinar entrega">Combinar entrega</option>
+            </select>
+        </div>
+
+        <!-- Opção de Pagamento -->
+        <div class="payment-option">
+            <p>Forma de pagamento:</p>
+            <input type="radio" id="cash" name="paymentOption" value="Dinheiro" onchange="checkPaymentOption()">
+            <label for="cash">Dinheiro</label>
+            <input type="radio" id="pix" name="paymentOption" value="Pix" onchange="checkPaymentOption()">
+            <label for="pix">Pix</label>
+            <input type="radio" id="card" name="paymentOption" value="Cartão" onchange="checkPaymentOption()">
+            <label for="card">Cartão</label>
+        </div>
+
+        <!-- Nome do Cliente -->
+        <div class="customer-name" id="customerName" style="display: none;">
+            <p>Informe seu nome:</p>
+            <div class="name-input-container">
+                <input type="text" id="nameInput" placeholder="Seu nome">
+                <button class="confirm-button" onclick="showFinalizeButton()">OK</button>
+            </div>
+        </div>
+
+        <!-- Finalizar Pedido -->
+        <div id="finalizeOrderSection" style="display: none;">
+            <button id="finalizeButton" style="margin-top: 10px;" onclick="finalizeOrder()">Finalizar</button>
+        </div>
+    </div>
+
+    <!-- Confirmação do Pedido -->
+    <div class="order-confirmation" id="orderConfirmation" style="display: none;">
+        <h1>Pedido Finalizado!</h1>
+        <p>"Seu pedido já está a caminho da cozinha!" 🍔</p>
+        <p>Vamos prepará-lo com carinho, e em cerca de 30 a 40 minutos ele estará prontinho para você. Enquanto isso, que tal nos acompanhar nas redes sociais?</p>
+        <div class="social-icons">
+            <a href="https://www.instagram.com/_imperial.burguer" target="_blank">
+                <i class="fab fa-instagram instagram-icon"></i>
+            </a>
+            <a href="https://wa.me/5588993467578" target="_blank">
+                <i class="fab fa-whatsapp whatsapp-icon"></i>
+            </a>
+        </div>
+        <button onclick="sendOrderAndReturnToCatalog()">Enviar Pedido</button>
+        <p class="credit">© 2025 Desenvolvido por Ismael Rocha | @_ismaelrocha</p>
+    </div>
+
+    <!-- Rodapé -->
+    <footer class="footer-capa">
+        <p>&copy; 2025 Desenvolvido por Ismael Rocha</p>
+    </footer>
+
+    <footer class="footer" id="mainFooter" style="display: none;">
+        <div class="social-media">
+            <p>Siga-nos:</p>
+            <a href="https://www.instagram.com/_imperial.burguer" target="_blank">
+                <i class="fab fa-instagram instagram-icon"></i>
+            </a>
+            <a href="https://wa.me/5588993467578" target="_blank">
+                <i class="fab fa-whatsapp whatsapp-icon"></i>
+            </a>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
