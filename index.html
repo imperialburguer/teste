@@ -19,16 +19,16 @@
             <p><i class="fas fa-clock clock-icon"></i> Horário de Funcionamento: 18:30 - 22:00</p>
             <p><i class="fas fa-motorcycle motorcycle-icon"></i> Serviço de Delivery Disponível até as 21:30. Faça seu Pedido!</p>
         </div>
+        <!-- Status de Aberto/Fechado -->
+        <div class="status">
+            <span id="statusIcon"></span>
+            <span id="statusText"></span>
+        </div>
     </div>
 
     <!-- Página Inicial (Menu, Carrossel e Destaques) -->
     <div class="inicio" id="inicio" style="display: none;">
         <div class="header-content">
-            <div class="logo">
-                <img src="images/logoimperial.png" alt="Logo Imperial Burguer">
-            </div>
-            <!-- Ícone de Menu Mobile -->
-            <div class="menu-icon" onclick="toggleMenu()">☰</div>
             <!-- Menu de Categorias -->
             <div class="categorias" id="categorias">
                 <button class="categoria-button" onclick="showInicio()">Início</button>
@@ -48,7 +48,7 @@
         
         <!-- Carrossel -->
         <div class="carrossel" id="carrossel">
-            <div class="carrossel-item">
+            <div class="carrossel-item active">
                 <img src="images/promobatata2.png" alt="Promoção 1">
             </div>
             <div class="carrossel-item">
