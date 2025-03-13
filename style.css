@@ -37,7 +37,6 @@ body {
 }
 
 .categorias {
-    flex: 1;
     display: flex;
     justify-content: center;
     gap: 10px;
@@ -146,7 +145,7 @@ body {
 .carrossel {
     width: 100%;
     height: 0;
-    padding-top: 400px; /* Proporção de 1200x500 */
+    padding-top: 50%; /* Proporção de 1:2 (ajuste conforme necessário) */
     position: relative;
     overflow: hidden;
     margin-top: 10px;
@@ -159,6 +158,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
+    display: none;
 }
 
 .carrossel-item img {
@@ -167,6 +167,10 @@ body {
     object-fit: cover;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.carrossel-item.active {
+    display: block;
 }
 
 .carrossel-button {
