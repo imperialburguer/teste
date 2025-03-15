@@ -20,9 +20,11 @@
             <p><i class="fas fa-motorcycle motorcycle-icon"></i> Serviço de Delivery Disponível até as 21:30. Faça seu Pedido!</p>
         </div>
         <!-- Status de Aberto/Fechado -->
-        <div class="status">
-            <span id="statusIcon"></span>
-            <span id="statusText"></span>
+        <div id="status-operacao">
+            <button class="status-button">
+                <span class="status-dot"></span>
+                <span class="status-text"></span>
+            </button>
         </div>
     </div>
 
@@ -31,21 +33,31 @@
         <div class="header-content">
             <!-- Menu de Categorias -->
             <div class="categorias" id="categorias">
-                <button class="categoria-button" onclick="showInicio()">Início</button>
+                <button class="categoria-button" onclick="showInicio()" title="Início">
+                    <i class="fas fa-home"></i> <!-- Ícone de Início -->
+                </button>
                 <div class="dropdown">
-                    <button class="categoria-button">Hambúrgueres</button>
+                    <button class="categoria-button" title="Hambúrgueres">
+                        <i class="fas fa-hamburger"></i> <!-- Ícone de Hambúrgueres -->
+                    </button>
                     <div class="dropdown-content">
                         <button class="subcategoria-button" onclick="filterProducts('Hambúrgueres', 'X')">X</button>
                         <button class="subcategoria-button" onclick="filterProducts('Hambúrgueres', 'Duplos')">Duplos</button>
                         <button class="subcategoria-button" onclick="filterProducts('Hambúrgueres', 'Especial')">Especial</button>
                     </div>
                 </div>
-                <button class="categoria-button" onclick="filterProducts('Bebidas')">Bebidas</button>
-                <button class="categoria-button" onclick="filterProducts('Porções')">Porções</button>
-                <button class="categoria-button" onclick="filterProducts('molhos')">Molhos</button>
+                <button class="categoria-button" onclick="filterProducts('Bebidas')" title="Bebidas">
+                    <i class="fas fa-glass-cheers"></i> <!-- Ícone de Bebidas -->
+                </button>
+                <button class="categoria-button" onclick="filterProducts('Porções')" title="Porções">
+                    <i class="fas fa-utensils"></i> <!-- Ícone de Porções -->
+                </button>
+                <button class="categoria-button" onclick="filterProducts('molhos')" title="Molhos">
+                    <i class="fas fa-fill-drip"></i> <!-- Ícone de Molhos -->
+                </button>
             </div>
         </div>
-        
+
         <!-- Carrossel -->
         <div class="carrossel" id="carrossel">
             <div class="carrossel-item active">
@@ -77,7 +89,7 @@
     </div>
 
     <!-- Detalhes do Carrinho -->
-    <div class="cart-details content" id="cartDetails">
+    <div class="cart-details content" id="cartDetails" style="display: none;">
         <h3>Carrinho</h3>
         <div id="cartItems"></div>
         <div id="cartTotal">Total: R$ 0.00 (incluindo taxa de entrega: R$ 0.00)</div>

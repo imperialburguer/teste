@@ -1,12 +1,31 @@
+document.addEventListener('DOMContentLoaded', function () {
+    const statusOperacao = document.getElementById('status-operacao');
+    const statusDot = document.querySelector('.status-dot');
+    const statusText = document.querySelector('.status-text');
+    const agora = new Date();
+    const horaAtual = agora.getHours();
+    const minutoAtual = agora.getMinutes();
+
+    if ((horaAtual > 18 || (horaAtual === 18 && minutoAtual >= 30)) && horaAtual < 22) {
+        statusText.textContent = 'Aberto';
+        statusDot.style.backgroundColor = 'green'; // Verde para aberto
+        statusText.style.color = 'green'; // Texto verde
+    } else {
+        statusText.textContent = 'Fechado';
+        statusDot.style.backgroundColor = 'red'; // Vermelho para fechado
+        statusText.style.color = 'red'; // Texto vermelho
+    }
+});
+
 // Variáveis globais
-let cart = []; // Array para armazenar os itens do carrinho
-let isCardPayment = false; // Controla se o pagamento é com cartão
-const maquininhaTax = 4.00; // Taxa de maquininha para pagamento com cartão
-const ketchupGratuito = 1; // Quantidade gratuita de ketchup
-const maioneseGratuita = 1; // Quantidade gratuita de maionese
-let descontoCupom = 0; // Variável para armazenar o desconto atual
-let cupomAplicado = null; // Variável para armazenar o cupom aplicado
-let freteGratis = false; // Variável para controlar o frete grátis
+let cart = [];
+let isCardPayment = false;
+const maquininhaTax = 4.00;
+const ketchupGratuito = 1;
+const maioneseGratuita = 1;
+let descontoCupom = 0;
+let cupomAplicado = null;
+let freteGratis = false;
 
 // Cupons válidos com regras
 const cuponsValidos = {
@@ -17,20 +36,31 @@ const cuponsValidos = {
             valor: 35.00,
             produtos: [1, 2, 3, 4, 5, 6],
         },
-        validoAte: "2025-03-13",
-        maximoUsos: 20,
+        validoAte: "2025-03-20",
+        maximoUsos: 60,
         usos: 0
     },
     "IMPERIAL5": {
         tipo: "desconto",
-        valor: 5,
+        valor: 2,
         regra: {
             tipo: "valor-minimo",
             valor: 30.00,
             produtos: [3, 4],
         },
-        validoAte: "2025-03-13",
-        maximoUsos: 20,
+        validoAte: "2025-03-20",
+        maximoUsos: 50,
+        usos: 0
+    },
+    "DESCONTO5": {
+        tipo: "desconto-total",
+        valor: 5, // 5% de desconto
+        regra: {
+            tipo: "valor-minimo-total",
+            valor: 35.00, // Valor mínimo da compra
+        },
+        validoAte: "2025-03-20",
+        maximoUsos: 50,
         usos: 0
     }
 };
@@ -41,23 +71,23 @@ const produtos = [
         id: 1,
         nome: "Combo X-Burguer",
         preco: 15.00,
-        descricao: "Clássico e irresistível! Hambúrguer suculento, queijo derretido, batata frita crocante e refrigerante gelado!",
+        descricao: "Hambúrguer suculento com queijo derretido, batata frita crocante e refrigerante 250ml gelado!",
         imagem: "images/comboxburguer.png",
-        destaque: true // Produto em destaque
+        destaque: true
     },
     {
         id: 2,
         nome: "Combo X-Salada",
         preco: 16.00,
-        descricao: "Hambúrguer suculento com queijo, alface, tomate e maionese especial. Acompanha batata frita crocante e refrigerante gelado!",
+        descricao: "Hambúrguer suculento com queijo, alface, tomate e maionese especial, batata frita crocante e refrigerante250ml gelado!",
         imagem: "images/comboxsalada.png",
-        destaque: true // Produto em destaque
+        destaque: true
     },
     {
         id: 3,
         nome: "Combo X-Tudo",
         preco: 23.00,
-        descricao: "Hambúrguer suculento com queijo, presunto, bacon, ovo, alface, tomate. Acompanha batata frita crocante e refrigerante gelado!",
+        descricao: "Hambúrguer suculento com queijo, presunto, bacon, ovo, alface, tomate e maionese especial, batata frita crocante e refrigerante 250ml gelado!",
         imagem: "images/comboxtudo.png",
         destaque: true // Produto em destaque
     },
@@ -65,7 +95,7 @@ const produtos = [
         id: 4,
         nome: "Combo X-Bacon",
         preco: 20.00,
-        descricao: "Hambúrguer suculento com queijo derretido e muito bacon crocante! Acompanha batata frita e refrigerante gelado!",
+        descricao: "Hambúrguer suculento com queijo derretido e muito bacon crocante, batata frita e refrigerante 250ml gelado!",
         imagem: "images/comboxbacon.png",
         destaque: true // Produto em destaque
     },
@@ -73,7 +103,7 @@ const produtos = [
         id: 5,
         nome: "Combo Duplo Burguer",
         preco: 22.00,
-        descricao: "hambúrguer suculento, queijo derretido e muito sabor! Acompanha batata frita crocante e refrigerante gelado!",
+        descricao: "Hambúrguer suculento com queijo derretido e muito sabor, batata frita crocante e refrigerante 250ml gelado!",
         imagem: "images/comboduploburguer.png",
         destaque: true // Produto em destaque
     },
@@ -81,7 +111,7 @@ const produtos = [
         id: 6,
         nome: "Combo Imperial",
         preco: 31.00,
-        descricao: "Uma experiência digna de rei, experimente e apaixone-se. Hamburguer, batata frita crocante e refrigerante gelado!",
+        descricao: "Uma experiência digna de rei, com batata frita crocante e refrigerante 250ml gelado!",
         imagem: "images/comboimperial.png",
         destaque: true // Produto em destaque
     },
@@ -178,7 +208,7 @@ const produtos = [
         id: 17,
         nome: "Batata Frita Imperial",
         preco: 15.00,
-        descricao: "Deliciosa batata frita para se deliciar, com cheddar, katupiry e bacon!",
+        descricao: "Deliciosa batata frita para se deliciar, com cheddar, catupiry e bacon!",
         imagem: "images/batataimperial.png",
         categoria: "Porções"
     },
@@ -246,7 +276,7 @@ const produtos = [
         imagem: "images/jeri250ml.png",
         categoria: "Hambúrgueres",
         subcategoria: "Combos"
-    },
+    }
 ];
 
 // Função para exibir a página inicial (Menu, Carrossel e Destaques)
@@ -257,16 +287,10 @@ function showInicio() {
     document.getElementById('carrossel').style.display = 'block';
     document.getElementById('destaque').style.display = 'block';
     document.getElementById('catalogo').style.display = 'none';
-    document.getElementById('cartIcon').style.display = 'block';
+    document.getElementById('cartIcon').style.display = 'block'; // Mostra o ícone do carrinho
     document.getElementById('mainFooter').style.display = 'block';
     document.getElementById('cartDetails').style.display = 'none';
     loadDestaqueProducts(); // Carrega os produtos em destaque
-}
-
-// Função para exibir/ocultar o menu de categorias em dispositivos móveis
-function toggleMenu() {
-    const categorias = document.getElementById('categorias');
-    categorias.classList.toggle('active');
 }
 
 // Função para carregar os produtos em destaque
@@ -283,7 +307,7 @@ function loadDestaqueProducts() {
                 <h3>${produto.nome}</h3>
                 <p>${produto.descricao}</p>
                 <p>R$ ${produto.preco.toFixed(2)}</p>
-                <button onclick="adicionarAoCarrinho(${produto.id})">Adicionar ao Carrinho</button>
+                <button onclick="adicionarAoCarrinho(${produto.id})">Pedir agora</button>
             `;
             produtosDestaqueContainer.appendChild(produtoDiv);
         }
@@ -308,7 +332,7 @@ function filterProducts(categoria, subcategoria = null) {
                 <h3>${produto.nome}</h3>
                 <p>${produto.descricao}</p>
                 <p>R$ ${produto.preco.toFixed(2)}</p>
-                <button onclick="adicionarAoCarrinho(${produto.id})">Adicionar ao Carrinho</button>
+                <button onclick="adicionarAoCarrinho(${produto.id})">Pedir agora</button>
             `;
             produtosContainer.appendChild(produtoDiv);
         }
@@ -346,7 +370,6 @@ function toggleCupomInput() {
 function aplicarCupom() {
     const cupomInput = document.getElementById('cupomInput').value.trim();
     const cupom = cuponsValidos[cupomInput];
-    const total = calcularTotal();
     const dataAtual = new Date();
 
     if (!cupom) {
@@ -367,36 +390,44 @@ function aplicarCupom() {
         return;
     }
 
-    // Verifica o valor mínimo do pedido
-    if (cupom.regra.tipo === "valor-minimo" && total < cupom.regra.valor) {
-        alert(`Cupom válido apenas para pedidos acima de R$ ${cupom.regra.valor.toFixed(2)}.`);
-        return;
-    }
+    // Verifica o tipo de cupom
+    if (cupom.tipo === "desconto-total") {
+        const valorMinimo = cupom.regra.valor;
+        const totalCompra = calcularTotal();
 
-    // Verifica se o cupom se aplica aos produtos no carrinho
-    const produtosValidos = cupom.regra.produtos;
-    const produtosNoCarrinho = cart.map(item => item.id);
-    const cupomValidoParaCarrinho = produtosNoCarrinho.every(produtoId => produtosValidos.includes(produtoId));
+        if (totalCompra < valorMinimo) {
+            alert(`Cupom válido apenas para compras acima de R$ ${valorMinimo.toFixed(2)}.`);
+            return;
+        }
 
-    if (!cupomValidoParaCarrinho) {
-        alert("Cupom não se aplica aos produtos no carrinho!");
-        return;
-    }
+        // Aplica o desconto no valor total da compra
+        descontoCupom = cupom.valor; // Armazena o desconto do cupom
+        cupomAplicado = cupomInput; // Armazena o cupom aplicado
+        alert(`Cupom aplicado com sucesso! Desconto de ${cupom.valor}% no valor total da compra.`);
+    } else if (cupom.tipo === "desconto") {
+        const produtosValidos = cupom.regra.produtos;
+        const itemParticipante = cart.find(item => produtosValidos.includes(item.id));
 
-    if (cupom.tipo === "frete-gratis") {
+        if (!itemParticipante) {
+            alert("Cupom válido apenas para produtos específicos. Adicione um produto participante!");
+            return;
+        }
+
+        // Aplica o desconto apenas ao primeiro item participante
+        const desconto = itemParticipante.preco * (cupom.valor / 100);
+        itemParticipante.desconto = desconto; // Armazena o desconto no item
+        cupomAplicado = cupomInput; // Armazena o cupom aplicado
+        alert(`Cupom aplicado com sucesso! Desconto de ${cupom.valor}% no item "${itemParticipante.nome}".`);
+    } else if (cupom.tipo === "frete-gratis") {
         freteGratis = true; // Ativa o frete grátis
         cupomAplicado = cupomInput; // Armazena o cupom aplicado
-        alert("Cupom aplicado! Frete grátis!");
-    } else if (cupom.tipo === "desconto") {
-        descontoCupom = cupom.valor; // Aplica o desconto
-        cupomAplicado = cupomInput; // Armazena o cupom aplicado
-        alert(`Cupom aplicado! Desconto de ${cupom.valor}%.`);
+        alert("Cupom aplicado com sucesso! Frete grátis ativado.");
     }
 
     // Atualiza a exibição do cupom aplicado
     document.getElementById('toggleCupomButton').style.display = 'none';
     document.getElementById('cupomAplicadoContainer').style.display = 'flex';
-    document.getElementById('cupomAplicadoText').textContent = cupomAplicado; // Exibe o nome do cupom
+    document.getElementById('cupomAplicadoText').textContent = cupomInput;
 
     // Atualiza o número de usos do cupom
     cuponsValidos[cupomInput].usos += 1;
@@ -407,6 +438,13 @@ function aplicarCupom() {
 
 // Função para remover o cupom
 function removerCupom() {
+    // Remove o desconto do item específico
+    cart.forEach(item => {
+        if (item.desconto) {
+            delete item.desconto;
+        }
+    });
+
     descontoCupom = 0;
     freteGratis = false;
     cupomAplicado = null;
@@ -417,18 +455,12 @@ function removerCupom() {
 }
 
 // Função para calcular o total do carrinho
-function calcularTotal() {
-    let total = cart.reduce((sum, item) => sum + item.preco * item.quantity, 0);
-    return total;
-}
-
-// Função para atualizar o carrinho
 function updateCart(deliveryFee = 0) {
     const cartItemsContainer = document.getElementById('cartItems');
     const cartTotalContainer = document.getElementById('cartTotal');
     const cartCount = document.getElementById('cartCount');
     cartItemsContainer.innerHTML = ''; // Limpa o conteúdo atual do carrinho
-    let total = 0;
+    let total = calcularTotal(); // Calcula o total com o desconto aplicado
 
     // Itera sobre cada item no carrinho
     cart.forEach(item => {
@@ -436,30 +468,35 @@ function updateCart(deliveryFee = 0) {
         const cartItemDiv = document.createElement('div');
         cartItemDiv.classList.add('cart-item');
 
+        // Nome e preço do item
         const itemName = document.createElement('p');
+        let itemTotal = 0;
 
         // Verifica se o item é ketchup ou maionese
         if (item.nome === 'Ketchup' || item.nome === 'Maionese') {
-            const quantidadeGratuita = item.nome === 'Ketchup' ? ketchupGratuito : maioneseGratuita;
+            const quantidadeGratuita = 1; // Primeira unidade gratuita
+            const quantidadePaga = Math.max(item.quantity - quantidadeGratuita, 0); // Unidades pagas
+            itemTotal = price * quantidadePaga; // Calcula o total pago
 
-            // Se a quantidade for menor ou igual à gratuita, não cobra
             if (item.quantity <= quantidadeGratuita) {
                 itemName.textContent = `${item.nome} - Gratuito (${item.quantity}x)`;
             } else {
-                // Calcula a quantidade excedente e cobra R$ 1,00 por unidade
-                const extraQuantity = item.quantity - quantidadeGratuita;
-                itemName.textContent = `${item.nome} - R$ ${(price * extraQuantity).toFixed(2)} (${item.quantity}x)`;
-                total += price * extraQuantity; // Adiciona ao total apenas o valor das unidades excedentes
+                itemName.textContent = `${item.nome} - R$ ${itemTotal.toFixed(2).replace('.', ',')} (${item.quantity}x)`;
             }
         } else {
             // Para outros produtos, cobra normalmente
-            itemName.textContent = `${item.nome} - R$ ${(price * item.quantity).toFixed(2)} (${item.quantity}x)`;
-            total += price * item.quantity;
+            itemTotal = price * item.quantity;
+            if (item.desconto) {
+                itemTotal -= item.desconto; // Aplica o desconto do cupom
+                itemName.textContent = `${item.nome} - R$ ${itemTotal.toFixed(2).replace('.', ',')} (${item.quantity}x) - Desconto de R$ ${item.desconto.toFixed(2).replace('.', ',')} aplicado`;
+            } else {
+                itemName.textContent = `${item.nome} - R$ ${itemTotal.toFixed(2).replace('.', ',')} (${item.quantity}x)`;
+            }
         }
 
         cartItemDiv.appendChild(itemName);
 
-        // Cria os botões de ajuste de quantidade
+        // Botões de ajuste de quantidade
         const adjustButtons = document.createElement('div');
         adjustButtons.classList.add('adjust-buttons');
 
@@ -493,19 +530,153 @@ function updateCart(deliveryFee = 0) {
         cartItemsContainer.appendChild(cartItemDiv);
     });
 
-    // Aplica o desconto do cupom, se houver
-    if (descontoCupom > 0) {
-        const desconto = total * (descontoCupom / 100);
-        total -= desconto;
+    // Aplica o frete grátis, se houver
+    if (freteGratis) {
+        deliveryFee = 0; // Zera a taxa de entrega
     }
+
+    // Adiciona a taxa de maquininha se o pagamento for com cartão
+    if (isCardPayment) {
+        total += maquininhaTax;
+    }
+
+    // Adiciona a taxa de entrega ao total, exceto se o cupom for FRETEGRATIS
+    if (!freteGratis) {
+        total += deliveryFee;
+    }
+
+    // Atualiza o total exibido no carrinho
+    cartTotalContainer.textContent = `Total: R$ ${total.toFixed(2).replace('.', ',')} (incluindo taxa de entrega: R$ ${deliveryFee.toFixed(2).replace('.', ',')})`;
+
+    // Atualiza o contador de itens no ícone do carrinho
+    cartCount.textContent = cart.length;
+}
+
+// Função para calcular o total da compra
+function calcularTotal() {
+    let total = 0;
+
+    cart.forEach(item => {
+        const price = item.preco;
+        let itemTotal = 0;
+
+        // Verifica se o item é ketchup ou maionese
+        if (item.nome === 'Ketchup' || item.nome === 'Maionese') {
+            const quantidadeGratuita = 1; // Primeira unidade gratuita
+            const quantidadePaga = Math.max(item.quantity - quantidadeGratuita, 0); // Unidades pagas
+            itemTotal = price * quantidadePaga; // Calcula o total pago
+        } else {
+            // Para outros produtos, cobra normalmente
+            itemTotal = price * item.quantity;
+            if (item.desconto) {
+                itemTotal -= item.desconto; // Aplica o desconto do cupom
+            }
+        }
+
+        total += itemTotal;
+    });
+
+    // Aplica o desconto percentual do cupom, se houver
+    if (descontoCupom > 0) {
+        total *= (1 - descontoCupom / 100);
+    }
+
+    return total;
+}
+
+// Função para atualizar o carrinho
+function updateCart(deliveryFee = 0) {
+    const cartItemsContainer = document.getElementById('cartItems');
+    const cartTotalContainer = document.getElementById('cartTotal');
+    const cartCount = document.getElementById('cartCount');
+    cartItemsContainer.innerHTML = ''; // Limpa o conteúdo atual do carrinho
+    let total = calcularTotal(); // Calcula o total com o desconto aplicado
+
+    // Itera sobre cada item no carrinho
+    cart.forEach(item => {
+        const price = item.preco;
+        const cartItemDiv = document.createElement('div');
+        cartItemDiv.classList.add('cart-item');
+
+        // Nome e preço do item
+        const itemName = document.createElement('p');
+        let itemTotal = 0;
+
+        // Verifica se o item é ketchup ou maionese
+        if (item.nome === 'Ketchup' || item.nome === 'Maionese') {
+            const quantidadeGratuita = 1; // Primeira unidade gratuita
+            const quantidadePaga = Math.max(item.quantity - quantidadeGratuita, 0); // Unidades pagas
+            itemTotal = price * quantidadePaga; // Calcula o total pago
+
+            if (item.quantity <= quantidadeGratuita) {
+                itemName.textContent = `${item.nome} - Gratuito (${item.quantity}x)`;
+            } else {
+                itemName.textContent = `${item.nome} - R$ ${itemTotal.toFixed(2).replace('.', ',')} (${item.quantity}x)`;
+            }
+        } else {
+            // Para outros produtos, cobra normalmente
+            itemTotal = price * item.quantity;
+            if (item.desconto) {
+                itemTotal -= item.desconto; // Aplica o desconto do cupom
+                itemName.textContent = `${item.nome} - R$ ${itemTotal.toFixed(2).replace('.', ',')} (${item.quantity}x) - Desconto de R$ ${item.desconto.toFixed(2).replace('.', ',')} aplicado`;
+            } else {
+                itemName.textContent = `${item.nome} - R$ ${itemTotal.toFixed(2).replace('.', ',')} (${item.quantity}x)`;
+            }
+        }
+
+        cartItemDiv.appendChild(itemName);
+
+        // Botões de ajuste de quantidade
+        const adjustButtons = document.createElement('div');
+        adjustButtons.classList.add('adjust-buttons');
+
+        // Botão para diminuir a quantidade
+        const decreaseButton = document.createElement('span');
+        decreaseButton.textContent = '-';
+        decreaseButton.onclick = () => updateItemQuantity(item, item.quantity - 1);
+        adjustButtons.appendChild(decreaseButton);
+
+        // Exibe a quantidade atual
+        const quantityDisplay = document.createElement('span');
+        quantityDisplay.textContent = item.quantity;
+        adjustButtons.appendChild(quantityDisplay);
+
+        // Botão para aumentar a quantidade
+        const increaseButton = document.createElement('span');
+        increaseButton.textContent = '+';
+        increaseButton.onclick = () => updateItemQuantity(item, item.quantity + 1);
+        adjustButtons.appendChild(increaseButton);
+
+        cartItemDiv.appendChild(adjustButtons);
+
+        // Botão para remover o item do carrinho
+        const removeButton = document.createElement('span');
+        removeButton.textContent = '🗑️';
+        removeButton.classList.add('remove-item');
+        removeButton.onclick = () => removeFromCart(item);
+        cartItemDiv.appendChild(removeButton);
+
+        // Adiciona o item ao contêiner do carrinho
+        cartItemsContainer.appendChild(cartItemDiv);
+    });
 
     // Aplica o frete grátis, se houver
     if (freteGratis) {
         deliveryFee = 0; // Zera a taxa de entrega
     }
 
+    // Adiciona a taxa de maquininha se o pagamento for com cartão
+    if (isCardPayment) {
+        total += maquininhaTax;
+    }
+
+    // Adiciona a taxa de entrega ao total, exceto se o cupom for FRETEGRATIS
+    if (!freteGratis) {
+        total += deliveryFee;
+    }
+
     // Atualiza o total exibido no carrinho
-    cartTotalContainer.textContent = `Total: R$ ${total.toFixed(2)} (incluindo taxa de entrega: R$ ${deliveryFee.toFixed(2)})`;
+    cartTotalContainer.textContent = `Total: R$ ${total.toFixed(2).replace('.', ',')} (incluindo taxa de entrega: R$ ${deliveryFee.toFixed(2).replace('.', ',')})`;
 
     // Atualiza o contador de itens no ícone do carrinho
     cartCount.textContent = cart.length;
@@ -588,10 +759,11 @@ function finalizeOrder() {
         alert("Por favor, adicione pelo menos um produto ao carrinho.");
         return;
     }
+
     // Verifica se há apenas itens gratuitos no carrinho
     const apenasItensGratuitos = cart.every(item => {
         return (item.nome === 'Ketchup' && item.quantity <= ketchupGratuito) ||
-               (item.nome === 'Maionese' && item.quantity <= maioneseGratuita);
+        (item.nome === 'Maionese' && item.quantity <= maioneseGratuita);
     });
 
     if (apenasItensGratuitos) {
@@ -632,10 +804,21 @@ function sendOrderAndReturnToCatalog() {
     cart = [];
     updateCart();
 
-    // Zera os dados do cliente e do cupom
+    // Zera os dados do cliente, cupom, entrega e pagamento
     document.getElementById('nameInput').value = '';
     document.getElementById('cupomInput').value = '';
     removerCupom();
+
+    // Limpa a observação
+    document.getElementById('orderNotes').value = ''; // Limpa o campo de observação
+
+    // Reseta as opções de entrega e pagamento
+    document.querySelector('input[name="deliveryOption"][value="Delivery"]').checked = false;
+    document.querySelector('input[name="deliveryOption"][value="Retirada"]').checked = false;
+    document.getElementById('locationSelect').value = '';
+    document.querySelector('input[name="paymentOption"][value="Dinheiro"]').checked = false;
+    document.querySelector('input[name="paymentOption"][value="Pix"]').checked = false;
+    document.querySelector('input[name="paymentOption"][value="Cartão"]').checked = false;
 
     // Volta à página inicial
     showInicio();
@@ -647,37 +830,69 @@ function sendOrderAndReturnToCatalog() {
 // Função para enviar o pedido via WhatsApp
 function sendOrder() {
     const customerName = document.getElementById('nameInput').value.trim();
+    const orderNotes = document.getElementById('orderNotes').value.trim();
+
     if (cart.length === 0) {
         alert("Por favor, adicione pelo menos um produto ao carrinho.");
         return;
     }
 
+    // Monta os detalhes do pedido
     let orderDetails = cart.map(item => {
         const price = item.preco;
-        if ((item.nome === 'Ketchup' && item.quantity <= ketchupGratuito) || (item.nome === 'Maionese' && item.quantity <= maioneseGratuita)) {
-            return `*${item.nome}* - Gratuito (${item.quantity}x)`;
-        } else if (item.nome === 'Ketchup' || item.nome === 'Maionese') {
-            const extraQuantity = item.quantity - (item.nome === 'Ketchup' ? ketchupGratuito : maioneseGratuita);
-            return `*${item.nome}* - R$ ${(price * extraQuantity).toFixed(2)} (${item.quantity}x)`;
+        let itemTotal = 0;
+
+        // Verifica se o item é ketchup ou maionese
+        if (item.nome === 'Ketchup' || item.nome === 'Maionese') {
+            const quantidadeGratuita = 1; // Primeira unidade gratuita
+            const quantidadePaga = Math.max(item.quantity - quantidadeGratuita, 0); // Unidades pagas
+            itemTotal = price * quantidadePaga; // Calcula o total pago
+
+            if (item.quantity <= quantidadeGratuita) {
+                return `*${item.nome}* - Gratuito (${item.quantity}x)`;
+            } else {
+                return `*${item.nome}* - R$ ${itemTotal.toFixed(2).replace('.', ',')} (${item.quantity}x)`;
+            }
         } else {
-            return `*${item.nome}* - R$ ${(price * item.quantity).toFixed(2)} (${item.quantity}x)`;
+            // Para outros produtos, cobra normalmente
+            itemTotal = price * item.quantity;
+            if (item.desconto) {
+                itemTotal -= item.desconto; // Aplica o desconto do cupom
+                return `*${item.nome}* - R$ ${itemTotal.toFixed(2).replace('.', ',')} (${item.quantity}x) - Desconto de R$ ${item.desconto.toFixed(2).replace('.', ',')} aplicado`;
+            } else {
+                return `*${item.nome}* - R$ ${itemTotal.toFixed(2).replace('.', ',')} (${item.quantity}x)`;
+            }
         }
     }).join('\n');
 
+    // Calcula o valor total do pedido
     let totalAmount = cart.reduce((sum, item) => {
         const price = item.preco;
-        if ((item.nome === 'Ketchup' && item.quantity <= ketchupGratuito) || (item.nome === 'Maionese' && item.quantity <= maioneseGratuita)) {
-            return sum;
-        } else if (item.nome === 'Ketchup' || item.nome === 'Maionese') {
-            const extraQuantity = item.quantity - (item.nome === 'Ketchup' ? ketchupGratuito : maioneseGratuita);
-            return sum + price * extraQuantity;
+        let itemTotal = 0;
+
+        // Verifica se o item é ketchup ou maionese
+        if (item.nome === 'Ketchup' || item.nome === 'Maionese') {
+            const quantidadeGratuita = 1; // Primeira unidade gratuita
+            const quantidadePaga = Math.max(item.quantity - quantidadeGratuita, 0); // Unidades pagas
+            itemTotal = price * quantidadePaga; // Calcula o total pago
         } else {
-            return sum + price * item.quantity;
+            // Para outros produtos, cobra normalmente
+            itemTotal = price * item.quantity;
+            if (item.desconto) {
+                itemTotal -= item.desconto; // Aplica o desconto do cupom
+            }
         }
+
+        return sum + itemTotal;
     }, 0);
 
+    // Aplica o desconto percentual do cupom, se houver
+    if (descontoCupom > 0) {
+        totalAmount *= (1 - descontoCupom / 100);
+    }
+
+    // Verifica a opção de entrega
     const deliveryOption = document.querySelector('input[name="deliveryOption"]:checked')?.value || '';
-    const paymentOption = document.querySelector('input[name="paymentOption"]:checked')?.value || '';
     const locationSelect = document.getElementById('locationSelect');
     const location = locationSelect ? locationSelect.value : '';
     let deliveryFee = 0;
@@ -698,17 +913,15 @@ function sendOrder() {
         totalAmount += deliveryFee;
     }
 
-    // Aplica o desconto do cupom, se houver
-    if (descontoCupom > 0) {
-        const desconto = totalAmount * (descontoCupom / 100);
-        totalAmount -= desconto;
-    }
-
     // Monta a mensagem do WhatsApp
     let message = `Olá, meu nome é ${customerName}, estou enviando o meu pedido:\n\n${orderDetails}\n\n`;
 
+    if (orderNotes) {
+        message += `Observações: ${orderNotes}\n\n`; // Adiciona a observação
+    }
+
     if (deliveryOption === 'Delivery') {
-        message += `Taxa de entrega: R$ ${freteGratis ? '0.00' : deliveryFee.toFixed(2)}\n`;
+        message += `Taxa de entrega: R$ ${freteGratis ? '0,00' : deliveryFee.toFixed(2).replace('.', ',')}\n`;
     }
 
     if (cupomAplicado) {
@@ -716,10 +929,10 @@ function sendOrder() {
     }
 
     if (isCardPayment) {
-        message += `Taxa de maquininha: R$ ${maquininhaTax.toFixed(2)}\n`;
+        message += `Taxa de maquininha: R$ ${maquininhaTax.toFixed(2).replace('.', ',')}\n`;
     }
 
-    message += `Total: R$ ${totalAmount.toFixed(2)}\n\n`;
+    message += `Total: R$ ${totalAmount.toFixed(2).replace('.', ',')}\n\n`;
 
     if (deliveryOption) {
         message += `Opção de entrega: ${deliveryOption}\n`;
@@ -727,6 +940,8 @@ function sendOrder() {
     if (location) {
         message += `Localização: ${location}\n`;
     }
+
+    const paymentOption = document.querySelector('input[name="paymentOption"]:checked')?.value || '';
     if (paymentOption) {
         message += `Forma de pagamento: ${paymentOption}\n`;
     }
@@ -784,6 +999,6 @@ window.onload = () => {
     document.getElementById('inicio').style.display = 'none';
     document.getElementById('categorias').style.display = 'none';
     document.getElementById('catalogo').style.display = 'none';
-    document.getElementById('cartIcon').style.display = 'none';
+    document.getElementById('cartIcon').style.display = 'none'; // Oculta o ícone do carrinho
     document.getElementById('mainFooter').style.display = 'none';
 };
